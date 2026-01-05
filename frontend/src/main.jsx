@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import TerminalPage from './pages/main.jsx';
+import Terminal from './components/Terminal';
 import './index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <TerminalPage />
+    <Terminal />
   </React.StrictMode>
 );

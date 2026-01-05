@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './terminal.css';
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
-const NAV_ITEMS = ['about', 'projects', 'contact', 'now', 'photodome'];
+const NAV_ITEMS = ['add interview', 'view interviews', 'interview summaries'];
 
 export default function Terminal() {
   const [history, setHistory] = useState([
@@ -233,20 +232,6 @@ export default function Terminal() {
           ))}
           {isProcessing && <div className="log-line log-info">processing…</div>}
         </div>
-      </div>
-
-      <div className="pill left-pill">
-        <span className="pill-dot" aria-hidden="true"></span>
-        <input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleInputKey}
-          placeholder="use me as a terminal window!"
-          spellCheck={false}
-          className="pill-input"
-        />
       </div>
 
       <div className="pill right-pill">
