@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import './terminal.css';
 
 const NAV_ITEMS = ['add interview', 'view interviews', 'interview summaries'];
+const NAV_ROUTES = ['/add-interview', '/interviews', '/summaries'];
 
 export default function Terminal() {
   const [history, setHistory] = useState([
@@ -23,6 +24,12 @@ export default function Terminal() {
     }
   }, [history]);
 
+  const handleNavigation = (index) => {
+    const route = NAV_ROUTES[index];
+    addToHistory([{ type: 'info', text: `navigating to ${NAV_ITEMS[index]}...` }]);
+    window.location.href = route;
+  };
+
   useEffect(() => {
     const onKeyDown = (e) => {
       if (document.activeElement === inputRef.current) return;
@@ -34,7 +41,7 @@ export default function Terminal() {
         setSelectedNav((prev) => (prev - 1 + NAV_ITEMS.length) % NAV_ITEMS.length);
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        handleNavSelect(selectedNav);
+        handleNavigation(selectedNav);
       }
     };
 
@@ -43,177 +50,6 @@ export default function Terminal() {
   }, [selectedNav]);
 
   const addToHistory = (entries) => setHistory((prev) => [...prev, ...entries]);
-
-  const handleNavSelect = (idx) => {
-    setSelectedNav(idx);
-    const item = NAV_ITEMS[idx];
-    const details = {
-      about: [
-        { type: 'info', text: 'Murder at Midnight investigation shell.' },
-        { type: 'info', text: `API base: ${API_BASE}` },
-      ],
-      projects: [
-        { type: 'info', text: 'Interviews: use "list" or buttons below.' },
-        { type: 'info', text: 'Add with: add <name> <path> <guilt>' },
-      ],
-      contact: [
-        { type: 'info', text: 'Contact: investigator@murder-at-midnight.local' },
-      ],
-      now: [
-        { type: 'info', text: 'Status: In-progress case review.' },
-      ],
-      photodome: [
-        { type: 'info', text: 'Photo dome coming soon.' },
-      ],
-    };
-    addToHistory([
-      { type: 'system', text: '' },
-      { type: 'success', text: `selected ${item}` },
-      ...(details[item] || [{ type: 'info', text: 'No details yet.' }]),
-      { type: 'system', text: '' },
-    ]);
-  };
-
-  const fetchInterviews = async () => {
-    const res = await fetch(`${API_BASE}/interviews`);
-    if (!res.ok) throw new Error('Failed to fetch interviews');
-    return res.json();
-  };
-
-  const addInterview = async (name, mp3_path, guilt_level) => {
-    const res = await fetch(`${API_BASE}/interview`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, mp3_path, guilt_level: Number(guilt_level) })
-    });
-    if (!res.ok) throw new Error('Failed to add interview');
-    return res.json();
-  };
-
-  const handleCommand = async (cmd) => {
-    const trimmed = cmd.trim();
-    if (!trimmed) return;
-
-    addToHistory([{ type: 'input', text: `$ ${trimmed}` }]);
-    setCommandHistory((prev) => [...prev, trimmed]);
-    setHistoryIndex(-1);
-    setIsProcessing(true);
-
-    const [command, ...args] = trimmed.toLowerCase().split(' ');
-
-    try {
-      switch (command) {
-        case 'help':
-          addToHistory([
-            { type: 'system', text: '' },
-            { type: 'system', text: 'available commands' },
-            { type: 'system', text: '──────────────────────────' },
-            { type: 'info', text: 'list                list interviews' },
-            { type: 'info', text: 'add <name> <path> <guilt>' },
-            { type: 'info', text: 'clear               clear log' },
-            { type: 'info', text: 'about               info blurb' },
-            { type: 'system', text: '' }
-          ]);
-          break;
-
-        case 'list': {
-          addToHistory([{ type: 'info', text: 'fetching interviews…' }]);
-          const interviews = await fetchInterviews();
-          if (interviews.length === 0) {
-            addToHistory([
-              { type: 'warning', text: 'no interviews in database yet' },
-              { type: 'system', text: '' }
-            ]);
-          } else {
-            const output = [
-              { type: 'success', text: `${interviews.length} interview(s)` },
-              { type: 'system', text: '──────────────────────────' }
-            ];
-            interviews.forEach((iv, idx) => {
-              output.push(
-                { type: 'data', text: `[${idx + 1}] ${iv.name || 'unknown'}` },
-                { type: 'data', text: `    file: ${iv.mp3_path}` },
-                { type: 'data', text: `    guilt: ${iv.guilt_level}/10` },
-                { type: 'system', text: '' }
-              );
-            });
-            addToHistory(output);
-          }
-          break;
-        }
-
-        case 'add': {
-          if (args.length < 3) {
-            addToHistory([
-              { type: 'error', text: 'usage: add <name> <mp3_path> <guilt_level>' },
-              { type: 'system', text: 'example: add "John" /audio/john.mp3 7' },
-              { type: 'system', text: '' }
-            ]);
-          } else {
-            const [name, path, guilt] = args;
-            addToHistory([{ type: 'info', text: `adding interview for ${name}…` }]);
-            await addInterview(name, path, guilt);
-            addToHistory([
-              { type: 'success', text: 'saved' },
-              { type: 'system', text: '' }
-            ]);
-          }
-          break;
-        }
-
-        case 'clear':
-          setHistory([{ type: 'system', text: 'log cleared' }, { type: 'system', text: '' }]);
-          break;
-
-        case 'about':
-          addToHistory([
-            { type: 'system', text: '' },
-            { type: 'info', text: 'murder-at-midnight investigation shell' },
-            { type: 'info', text: `api base: ${API_BASE}` },
-            { type: 'info', text: 'arrow keys move the menu' },
-            { type: 'system', text: '' }
-          ]);
-          break;
-
-        default:
-          addToHistory([
-            { type: 'error', text: `unknown command: ${command}` },
-            { type: 'system', text: 'try "help"' },
-            { type: 'system', text: '' }
-          ]);
-      }
-    } catch (err) {
-      addToHistory([
-        { type: 'error', text: err.message },
-        { type: 'system', text: '' }
-      ]);
-    }
-
-    setIsProcessing(false);
-  };
-
-  const handleInputKey = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleCommand(input);
-      setInput('');
-    } else if (e.key === 'ArrowUp') {
-      if (commandHistory.length === 0) return;
-      const nextIndex = historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
-      setHistoryIndex(nextIndex);
-      setInput(commandHistory[nextIndex]);
-    } else if (e.key === 'ArrowDown') {
-      if (historyIndex === -1) return;
-      const nextIndex = Math.min(commandHistory.length - 1, historyIndex + 1);
-      if (nextIndex === historyIndex && nextIndex === commandHistory.length - 1) {
-        setHistoryIndex(-1);
-        setInput('');
-      } else {
-        setHistoryIndex(nextIndex);
-        setInput(commandHistory[nextIndex]);
-      }
-    }
-  };
 
   const getLineColor = (type) => {
     switch (type) {
@@ -246,15 +82,29 @@ export default function Terminal() {
             <button
               key={item}
               className={`nav-item ${selectedNav === idx ? 'active' : ''}`}
-              onClick={() => handleNavSelect(idx)}
+              onClick={() => handleNavigation(idx)}
             >
               <span className="caret">&gt;</span>
               <span className="nav-text">{item}</span>
             </button>
           ))}
         </div>
+
+        <div className="mini-log" ref={logRef}>
+          {history.slice(-10).map((line, idx) => (
+            <div key={`${line.text}-${idx}`} className={`log-line ${getLineColor(line.type)}`}>
+              {line.text}
+            </div>
+          ))}
+          {isProcessing && <div className="log-line log-info">processing…</div>}
+        </div>
       </div>
 
+      <div className="pill right-pill">
+        <span className="arrow">▲</span>
+        <span className="arrow">▼</span>
+        <span className="pill-text">try using arrow keys!</span>
+      </div>
     </div>
   );
 }
