@@ -34,7 +34,7 @@ export default function Terminal() {
         setSelectedNav((prev) => (prev - 1 + NAV_ITEMS.length) % NAV_ITEMS.length);
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        addToHistory([{ type: 'info', text: `selected ${NAV_ITEMS[selectedNav]}` }]);
+        handleNavSelect(selectedNav);
       }
     };
 
@@ -43,6 +43,36 @@ export default function Terminal() {
   }, [selectedNav]);
 
   const addToHistory = (entries) => setHistory((prev) => [...prev, ...entries]);
+
+  const handleNavSelect = (idx) => {
+    setSelectedNav(idx);
+    const item = NAV_ITEMS[idx];
+    const details = {
+      about: [
+        { type: 'info', text: 'Murder at Midnight investigation shell.' },
+        { type: 'info', text: `API base: ${API_BASE}` },
+      ],
+      projects: [
+        { type: 'info', text: 'Interviews: use "list" or buttons below.' },
+        { type: 'info', text: 'Add with: add <name> <path> <guilt>' },
+      ],
+      contact: [
+        { type: 'info', text: 'Contact: investigator@murder-at-midnight.local' },
+      ],
+      now: [
+        { type: 'info', text: 'Status: In-progress case review.' },
+      ],
+      photodome: [
+        { type: 'info', text: 'Photo dome coming soon.' },
+      ],
+    };
+    addToHistory([
+      { type: 'system', text: '' },
+      { type: 'success', text: `selected ${item}` },
+      ...(details[item] || [{ type: 'info', text: 'No details yet.' }]),
+      { type: 'system', text: '' },
+    ]);
+  };
 
   const fetchInterviews = async () => {
     const res = await fetch(`${API_BASE}/interviews`);
@@ -216,7 +246,7 @@ export default function Terminal() {
             <button
               key={item}
               className={`nav-item ${selectedNav === idx ? 'active' : ''}`}
-              onClick={() => setSelectedNav(idx)}
+              onClick={() => handleNavSelect(idx)}
             >
               <span className="caret">&gt;</span>
               <span className="nav-text">{item}</span>
