@@ -1,5 +1,5 @@
 
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from backend.utils.interview_files import load_interviews, save_interviews
 from backend.utils.transcript import save_audio_file, generate_transcript
@@ -21,6 +21,49 @@ app.add_middleware(
 def get_interviews():
     interviews = load_interviews()
     return interviews
+
+# DELETE endpoint to remove an interview and its audio file
+@app.delete("/interview/{name}")
+async def delete_interview(name: str):
+    interviews = load_interviews()
+    interview = next((iv for iv in interviews if iv.get("name") == name), None)
+    if not interview:
+        raise HTTPException(status_code=404, detail="Interview not found.")
+    # Remove audio file if exists
+    mp3_path = interview.get("mp3_path")
+    if mp3_path and os.path.exists(mp3_path):
+        try:
+            os.remove(mp3_path)
+        except Exception as e:
+            print(f"[ERROR] Failed to delete audio file: {e}")
+    # Remove interview from list
+    interviews = [iv for iv in interviews if iv.get("name") != name]
+    try:
+        save_interviews(interviews)
+    except Exception as e:
+        print(f"[ERROR] Failed to update interviews list: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update interviews list.")
+    return {"message": f"Interview '{name}' deleted."}
+
+# DELETE endpoint to remove all interviews and their audio files (reset)
+@app.delete("/interviews/reset")
+async def reset_interviews():
+    interviews = load_interviews()
+    # Remove all audio files
+    for iv in interviews:
+        mp3_path = iv.get("mp3_path")
+        if mp3_path and os.path.exists(mp3_path):
+            try:
+                os.remove(mp3_path)
+            except Exception as e:
+                print(f"[ERROR] Failed to delete audio file: {e}")
+    # Save empty interviews
+    if isinstance(interviews, dict):
+        interviews.clear()
+    else:
+        interviews = []
+    save_interviews(interviews)
+    return {"message": "All interviews and audio files deleted."}
 
 @app.post("/interview")
 async def add_interview(name: str = Form(...), file: UploadFile = File(...)):
