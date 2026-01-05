@@ -1,12 +1,16 @@
+
 from fastapi import FastAPI, Request
 from google import genai
 import json
 import os
+from dotenv import load_dotenv
 
+
+load_dotenv()
 app = FastAPI()
 client = genai.Client()
 
-DATA_FILE = "interviews.json"
+DATA_FILE = "backend/interviews.json"
 
 def load_interviews():
 	if not os.path.exists(DATA_FILE):
