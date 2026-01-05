@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
+import './index.css';
 
 function TerminalPage() {
   const [output, setOutput] = useState([
