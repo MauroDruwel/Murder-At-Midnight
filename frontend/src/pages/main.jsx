@@ -45,14 +45,14 @@ export default function TerminalPage() {
 
   const handleAddInterview = async () => {
     if (!form.name || !form.file) {
-      const msg = 'Name and audio file are required.';
+      const msg = 'Name and audio/video file are required.';
       setError(msg);
       log('! add_interview', `! ${msg}`);
       return;
     }
     setLoading(true);
     setError(null);
-    log(`> add_interview ${form.name}`, '> Uploading file...');
+    log(`> add_interview ${form.name}`, '> Uploading media file...');
     try {
       const fd = new FormData();
       fd.append('name', form.name);
@@ -183,12 +183,14 @@ export default function TerminalPage() {
               <input
                 className="w-full bg-gray-800 text-green-200 border border-green-500/40 rounded px-3 py-2 file:mr-3 file:py-2 file:px-3 file:border-0 file:bg-green-700 file:text-white"
                 type="file"
-                accept="audio/*"
+                accept="audio/*,video/*"
                 onChange={(e) => setForm({ ...form, file: e.target.files?.[0] || null })}
                 disabled={loading}
               />
               {form.file && (
-                <div className="text-xs text-gray-400">Selected: {form.file.name}</div>
+                <div className="text-xs text-gray-400">
+                  Selected: {form.file.name} ({form.file.type || 'unknown type'})
+                </div>
               )}
               <button
                 onClick={handleAddInterview}
