@@ -19,7 +19,7 @@ def save_interviews(interviews):
 @app.get("/interviews")
 def get_interviews():
 	interviews = load_interviews()
-	return {"interviews": interviews}
+	return interviews
 
 @app.post("/interview")
 async def add_interview(request: Request):

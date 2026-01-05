@@ -17,4 +17,4 @@ ENV/
 Thumbs.db
 
 # Data
-backend/interviews.json
+interviews.json
