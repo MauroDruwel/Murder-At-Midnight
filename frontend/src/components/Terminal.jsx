@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './terminal.css';
 
 const NAV_ITEMS = ['add interview', 'view interviews', 'interview summaries'];
 const NAV_ROUTES = ['/add-interview', '/interviews', '/summaries'];
 
 export default function Terminal() {
+  const navigate = useNavigate(); 
   const [history, setHistory] = useState([
     { type: 'system', text: 'murder-at-midnight // minimal shell' },
     { type: 'system', text: 'type "help" below or use arrow keys' },
