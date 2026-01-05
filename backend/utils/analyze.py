@@ -6,7 +6,7 @@ load_dotenv()
 
 def analyze_guilt(transcript):
     api_key = os.getenv("HACKCLUB_API_KEY")
-    server_url = os.getenv("HACKCLUB_SERVER_URL", "https://ai.hackclub.com/proxy/v1")
+    server_url = os.getenv("HACKCLUB_SERVER_URL","")
     model = os.getenv("HACKCLUB_MODEL", "qwen/qwen3-32b")
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload = {
