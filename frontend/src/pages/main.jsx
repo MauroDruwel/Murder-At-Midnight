@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+
 export default function TerminalPage() {
   const [output, setOutput] = useState([
     '> System initialized...',
