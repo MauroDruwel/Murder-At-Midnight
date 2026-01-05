@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import 'src/components/terminal.css';
+import './components/terminal.css';
 
 
 export default function AddInterview() {
