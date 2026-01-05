@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom/client';
 
-
-export default function TerminalPage() {
+function TerminalPage() {
   const [output, setOutput] = useState([
     '> System initialized...',
     '> Welcome to Murder At Midnight Interview System',
@@ -76,3 +76,10 @@ export default function TerminalPage() {
     </div>
   );
 }
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <TerminalPage />
+  </React.StrictMode>
+);
