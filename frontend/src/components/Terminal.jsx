@@ -223,22 +223,8 @@ export default function Terminal() {
             </button>
           ))}
         </div>
-
-        <div className="mini-log" ref={logRef}>
-          {history.slice(-10).map((line, idx) => (
-            <div key={`${line.text}-${idx}`} className={`log-line ${getLineColor(line.type)}`}>
-              {line.text}
-            </div>
-          ))}
-          {isProcessing && <div className="log-line log-info">processing…</div>}
-        </div>
       </div>
 
-      <div className="pill right-pill">
-        <span className="arrow">▲</span>
-        <span className="arrow">▼</span>
-        <span className="pill-text">try using arrow keys!</span>
-      </div>
     </div>
   );
 }
