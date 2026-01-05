@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Request
+from google import genai
 import json
 import os
 
 app = FastAPI()
+client = genai.Client()
 
 DATA_FILE = "interviews.json"
 
@@ -24,12 +26,17 @@ def get_interviews():
 @app.post("/interview")
 async def add_interview(request: Request):
 	data = await request.json()
-	# Expecting: {"name": str, "mp3_path": str, "guilt_level": int}
+	# Expecting: {"name": str, "mp3_path": str}
 	interviews = load_interviews()
+	name = data.get("name", "")
+	mp3Path = data.get("mp3_path", "")
 	interviews.append({
-		"name": data.get("name", ""),
-		"mp3_path": data.get("mp3_path", ""),
-		"guilt_level": int(data.get("guilt_level", 0))
+		"name": name,
+		"mp3_path": mp3Path,
+		"guilt_level": -1
 	})
 	save_interviews(interviews)
+	mp3File = client.files.upload(file=mp3Path)
+	transcript = client.models.generate_content(model='gemini-2.5-flash', contents=["Generate a transcript of the speech.", mp3File])
+	print(transcript)
 	return {"message": "Interview added", "interview": data}
