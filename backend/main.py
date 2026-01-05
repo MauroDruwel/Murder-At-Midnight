@@ -1,5 +1,6 @@
 
 from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.middleware.cors import CORSMiddleware
 from backend.utils.interview_files import load_interviews, save_interviews
 from backend.utils.transcript import save_audio_file, generate_transcript
 from backend.utils.analyze import analyze_guilt
@@ -8,6 +9,13 @@ import re
 
 app = FastAPI()
 
+# Allow frontend dev server to access the API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/interviews")
 def get_interviews():
     interviews = load_interviews()
