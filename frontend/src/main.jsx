@@ -9,21 +9,25 @@ import AddInterview from './add-interview';
 import Interviews from './interviews';
 import InterviewDetail from './interview-detail';
 import Summaries from './summaries';
+import { AudioProvider } from './components/AudioProvider';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <Routes>
-        <Route element={<AppFrame />}>
-          <Route index element={<Terminal />} />
-          <Route path="add-interview" element={<AddInterviewLanding />} />
-          <Route path="add-interview/new" element={<AddInterview />} />
-          <Route path="interviews" element={<Interviews />} />
-          <Route path="interviews/:handle" element={<InterviewDetail />} />
-          <Route path="summaries" element={<Summaries />} />
-        </Route>
-      </Routes>
+      <AudioProvider>
+        <Routes>
+          <Route element={<AppFrame />}>
+            <Route index element={<Terminal />} />
+            <Route path="add-interview" element={<AddInterviewLanding />} />
+            <Route path="add-interview/new" element={<AddInterview />} />
+            <Route path="interviews" element={<Interviews />} />
+            <Route path="interviews/:handle" element={<InterviewDetail />} />
+            <Route path="summaries" element={<Summaries />} />
+          </Route>
+        </Routes>
+      </AudioProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
