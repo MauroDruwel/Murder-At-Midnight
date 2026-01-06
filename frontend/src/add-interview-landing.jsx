@@ -1,21 +1,33 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './components/terminal.css';
 
+const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
+
 export default function AddInterviewLanding() {
   const navigate = useNavigate();
-  const [interviews, setInterviews] = useState([
-    { id: 1, name: 'Interview 1' },
-    { id: 2, name: 'Interview 2' },
-    { id: 3, name: 'Interview 3' },
-  ]);
+  const [interviews, setInterviews] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/interviews`);
+        if (!res.ok) throw new Error('Failed to fetch interviews');
+        const data = await res.json();
+        if (!cancelled) setInterviews(Array.isArray(data) ? data : []);
+      } catch (err) {
+        /* no-op: keep page simple */
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleAddInterview = () => {
-    setInterviews((prev) => {
-      const nextId = prev.length + 1;
-      const nextList = [...prev, { id: nextId, name: `Interview ${nextId}` }];
-      return nextList;
-    });
     navigate('/add-interview/new');
   };
 

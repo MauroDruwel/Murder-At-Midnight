@@ -13,6 +13,7 @@ export default function AddInterview() {
   const [status, setStatus] = useState('ready');
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [transcript, setTranscript] = useState('');
 
   useEffect(() => {
     return () => {
@@ -105,9 +106,11 @@ export default function AddInterview() {
         throw new Error(data.error || 'Failed to save interview');
       }
       setStatus('saved');
+      setTranscript(data.transcript || '');
     } catch (err) {
       setError(err.message || 'Failed to save interview');
       setStatus('ready');
+      setTranscript('');
     } finally {
       setIsSaving(false);
     }
@@ -119,7 +122,7 @@ export default function AddInterview() {
       <div className="panel" style={{ width: 'min(960px, 92vw)', gap: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
           <div>
-            <p className="title" style={{ marginBottom: '4px' }}>add / edit interview</p>
+            <p className="title" style={{ marginBottom: '4px' }}>add interview</p>
             <p className="log-line log-info" style={{ margin: 0, opacity: 0.9 }}>
               Same name will overwrite the existing interview.
             </p>
@@ -244,6 +247,26 @@ export default function AddInterview() {
             {isSaving ? 'saving...' : 'save interview'}
           </button>
         </div>
+
+        {transcript && (
+          <div style={{ marginTop: '16px' }}>
+            <p className="log-line log-info" style={{ margin: 0 }}>Transcript</p>
+            <div
+              style={{
+                marginTop: '8px',
+                padding: '12px 14px',
+                borderRadius: '12px',
+                border: '2px solid #ffe4b5',
+                background: '#2d2540',
+                color: '#fff3d6',
+                lineHeight: 1.6,
+                whiteSpace: 'pre-wrap',
+              }}
+            >
+              {transcript}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
