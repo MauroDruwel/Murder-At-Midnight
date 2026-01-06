@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './components/terminal.css';
+import { pickCrownColorForGuilt, setLedCrownColor, setLedCrownWhite } from './lib/ledCrown';
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
 
@@ -252,6 +253,7 @@ export default function AddInterview() {
 
       // Immediately trigger guilt analysis in the background
       setStatus('analyzing...');
+      setLedCrownWhite();
       setAnalysisState('running');
       try {
         const analyzeForm = new FormData();
@@ -264,15 +266,20 @@ export default function AddInterview() {
         if (!analyzeRes.ok || analyzeData.error) {
           throw new Error(analyzeData.error || 'Analysis failed');
         }
+
+        const color = pickCrownColorForGuilt(analyzeData.guilt_level, { redAtOrAbove: 60 });
+        setLedCrownColor(color);
         setStatus('saved & analyzed');
         setAnalysisState('success');
       } catch (anErr) {
         // Keep the save success but surface analysis issue
+        setLedCrownWhite();
         setStatus('saved (analysis failed)');
         setAnalysisState('error');
         setError(anErr.message || 'Analysis failed');
       }
     } catch (err) {
+      setLedCrownWhite();
       setError(err.message || 'Failed to save interview');
       setStatus('ready');
       setTranscript('');

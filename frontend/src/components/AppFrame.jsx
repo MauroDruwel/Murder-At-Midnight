@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import BackButton from './BackButton';
+import { setLedCrownWhite } from '../lib/ledCrown';
 
 function getBackConfig(pathname) {
   if (pathname.startsWith('/interviews/')) {
@@ -24,6 +26,12 @@ export default function AppFrame() {
   const location = useLocation();
   const showBack = location.pathname !== '/';
   const { label, to, fallbackTo } = getBackConfig(location.pathname);
+
+  useEffect(() => {
+    // Default behavior: keep the crown white on all pages.
+    // Special states (e.g. analysis completion) can override this until the next route change.
+    setLedCrownWhite();
+  }, [location.pathname]);
 
   return (
     <>

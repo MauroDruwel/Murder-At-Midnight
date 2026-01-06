@@ -8,6 +8,58 @@ from fastapi import Request
 import os
 import re
 
+
+def _normalize_summary_result(summary_result):
+    """Force summary into a stable shape:
+    {"ranking": [{"name": str, "rank": number|None, "reason": str}], "summary": str}
+    """
+    base = {"ranking": [], "summary": ""}
+
+    if summary_result is None:
+        return base
+
+    if isinstance(summary_result, str):
+        return {"ranking": [], "summary": summary_result}
+
+    if isinstance(summary_result, dict):
+        ranking = summary_result.get("ranking")
+        if not isinstance(ranking, list):
+            ranking = []
+
+        normalized_ranking = []
+        for entry in ranking:
+            if not isinstance(entry, dict):
+                continue
+            normalized_ranking.append({
+                "name": entry.get("name") or "Unknown suspect",
+                "rank": entry.get("rank"),
+                "reason": entry.get("reason") or "No reason provided.",
+            })
+
+        summary_text = summary_result.get("summary")
+        if not isinstance(summary_text, str):
+            summary_text = ""
+
+        return {"ranking": normalized_ranking, "summary": summary_text}
+
+    if isinstance(summary_result, list):
+        normalized_ranking = []
+        summary_text = ""
+        for entry in summary_result:
+            if not isinstance(entry, dict):
+                continue
+            if isinstance(entry.get("summary"), str) and entry.get("summary"):
+                summary_text = entry.get("summary")
+                continue
+            normalized_ranking.append({
+                "name": entry.get("name") or "Unknown suspect",
+                "rank": entry.get("rank"),
+                "reason": entry.get("reason") or "No reason provided.",
+            })
+        return {"ranking": normalized_ranking, "summary": summary_text}
+
+    return base
+
 app = FastAPI()
 
 # Allow frontend dev server to access the API
@@ -151,7 +203,25 @@ async def summary_endpoint():
 
     # If summary exists and hash matches, return it
     if summary_data and summary_data.get("hash") == transcripts_hash:
-        return {"summary": summary_data.get("result")}
+        cached_result = summary_data.get("result")
+        normalized_cached = _normalize_summary_result(cached_result)
+
+        # Opportunistically rewrite cache into the normalized shape.
+        try:
+            if normalized_cached != cached_result:
+                if isinstance(interviews, dict) and "_summary" in interviews:
+                    interviews["_summary"]["result"] = normalized_cached
+                    save_interviews(interviews)
+                elif isinstance(interviews, list):
+                    for iv in reversed(interviews):
+                        if isinstance(iv, dict) and "_summary" in iv and isinstance(iv["_summary"], dict):
+                            iv["_summary"]["result"] = normalized_cached
+                            save_interviews(interviews)
+                            break
+        except Exception as e:
+            print(f"[WARN] Failed to normalize cached summary: {e}")
+
+        return {"summary": normalized_cached}
 
     # Otherwise, generate a new summary
     summary_prompt = "Transcripts:"
@@ -159,17 +229,18 @@ async def summary_endpoint():
         summary_prompt += f"\nName: {iv['name']}\nTranscript: {iv['transcript']}\n"
     try:
         summary_result = analyze_summary(summary_prompt)
+        normalized = _normalize_summary_result(summary_result)
         # Store the summary and hash in interviews.json
         # If interviews is a dict, store at top-level; if list, store as last element
         if isinstance(interviews, dict):
-            interviews["_summary"] = {"hash": transcripts_hash, "result": summary_result}
+            interviews["_summary"] = {"hash": transcripts_hash, "result": normalized}
             save_interviews(interviews)
         elif isinstance(interviews, list):
             # Remove any existing _summary entries so only one exists
             interviews = [iv for iv in interviews if not (isinstance(iv, dict) and "_summary" in iv)]
-            interviews.append({"_summary": {"hash": transcripts_hash, "result": summary_result}})
+            interviews.append({"_summary": {"hash": transcripts_hash, "result": normalized}})
             save_interviews(interviews)
-        return {"summary": summary_result}
+        return {"summary": normalized}
     except Exception as e:
         print(f"[ERROR] Summary analysis failed: {e}")
         return {"error": "Summary analysis failed."}
