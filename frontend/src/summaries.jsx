@@ -89,6 +89,7 @@ export default function Summaries() {
 		loadSummary();
 	}, [loadSummary]);
 
+
 	return (
 		<div className="terminal-page">
 			<div className="noise-layer" aria-hidden="true" />

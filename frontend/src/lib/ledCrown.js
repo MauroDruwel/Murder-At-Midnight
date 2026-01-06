@@ -59,6 +59,14 @@ export function setLedCrownGreen(opts) {
   setLedCrownColor({ r: 0, g: 255, b: 0 }, opts);
 }
 
+export function setLedCrownBlue(opts) {
+  setLedCrownColor({ r: 0, g: 0, b: 255 }, opts);
+}
+
+export function setLedCrownOrange(opts) {
+  setLedCrownColor({ r: 255, g: 140, b: 0 }, opts);
+}
+
 export function pickCrownColorForGuilt(guiltLevel, thresholds = { redAtOrAbove: 60 }) {
   const n = Number(guiltLevel);
   if (!Number.isFinite(n)) return { r: 255, g: 255, b: 255 };
