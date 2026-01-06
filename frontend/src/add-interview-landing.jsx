@@ -15,7 +15,12 @@ export default function AddInterviewLanding() {
         const res = await fetch(`${API_BASE}/interviews`);
         if (!res.ok) throw new Error('Failed to fetch interviews');
         const data = await res.json();
-        if (!cancelled) setInterviews(Array.isArray(data) ? data : []);
+        if (!cancelled) {
+          const visible = Array.isArray(data)
+            ? data.filter(iv => iv && typeof iv === 'object' && typeof iv.name === 'string' && iv.name.trim() !== '')
+            : [];
+          setInterviews(visible);
+        }
       } catch (err) {
         /* no-op: keep page simple */
       }
@@ -63,9 +68,9 @@ export default function AddInterviewLanding() {
             flexWrap: 'wrap',
           }}
         >
-          {interviews.map((interview) => (
+            {interviews.map((interview, idx) => (
             <div
-              key={interview.id}
+                key={interview.name || interview.id || `iv-${idx}`}
               style={{
                 width: '180px',
                 height: '120px',
