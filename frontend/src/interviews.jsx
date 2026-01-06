@@ -408,6 +408,7 @@ const ProfileCard = React.memo(ProfileCardComponent);
 export default function Interviews() {
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -417,8 +418,10 @@ export default function Interviews() {
         const res = await fetch(`${API_BASE}/interviews`);
         if (!res.ok) throw new Error('Failed to fetch interviews');
         const data = await res.json();
+        console.log('API response:', data);
         if (!cancelled) setInterviews(Array.isArray(data) ? data : []);
-      } catch {
+      } catch (err) {
+        if (!cancelled) setError(err.message || 'Failed to fetch interviews');
         if (!cancelled) setInterviews([]);
       } finally {
         if (!cancelled) setLoading(false);
@@ -448,12 +451,18 @@ export default function Interviews() {
           <p className="lede">Meet our featured detective.</p>
         </header>
 
+        {error && (
+          <div className="interviews-placeholder" style={{ color: 'red', marginBottom: '1em' }}>
+            Error: {error}
+          </div>
+        )}
+
         <div className="interviews-grid">
           {loading && <div className="interviews-placeholder">Loading interviews…</div>}
-          {!loading && interviews.length === 0 && (
+          {!loading && !error && interviews.length === 0 && (
             <div className="interviews-placeholder">No interviews yet.</div>
           )}
-          {!loading &&
+          {!loading && !error &&
             interviews.map((interview, idx) => (
               <ProfileCard
                 key={`${interview.name || 'interview'}-${idx}`}
