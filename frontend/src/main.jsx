@@ -6,6 +6,7 @@ import Terminal from './components/Terminal';
 import AddInterviewLanding from './add-interview-landing';
 import AddInterview from './add-interview';
 import Interviews from './interviews';
+import InterviewDetail from './interview-detail';
 import Summaries from './summaries';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -17,6 +18,7 @@ root.render(
         <Route path="/add-interview" element={<AddInterviewLanding />} />
         <Route path="/add-interview/new" element={<AddInterview />} />
         <Route path="/interviews" element={<Interviews />} />
+        <Route path="/interviews/:handle" element={<InterviewDetail />} />
         <Route path="/summaries" element={<Summaries />} />
       </Routes>
     </BrowserRouter>

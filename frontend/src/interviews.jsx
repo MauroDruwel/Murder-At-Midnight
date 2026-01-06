@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './ProfileCard.css';
 import './components/terminal.css';
 import './App.css';
@@ -390,6 +391,7 @@ const ProfileCard = React.memo(ProfileCardComponent);
 export default function Interviews() {
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -411,9 +413,12 @@ export default function Interviews() {
     };
   }, []);
 
-  const handleContactClick = useCallback(name => {
-    alert(`Open interview: ${name}`);
-  }, []);
+  const handleContactClick = useCallback(
+    name => {
+      navigate(`/interviews/${toHandle(name)}`);
+    },
+    [navigate]
+  );
 
   return (
     <div className="terminal-page">
