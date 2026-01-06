@@ -1,33 +1,41 @@
+import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import BackButton from './BackButton';
+import { setLedCrownWhite } from '../lib/ledCrown';
 
 function getBackConfig(pathname) {
   if (pathname.startsWith('/interviews/')) {
-    return { label: 'BACK TO INTERVIEWS', fallbackTo: '/interviews' };
+    return { label: 'BACK TO INTERVIEWS', to: '/interviews', fallbackTo: '/interviews' };
   }
   if (pathname.startsWith('/add-interview/new')) {
-    return { label: 'BACK TO ADD INTERVIEW', fallbackTo: '/add-interview' };
+    return { label: 'BACK TO ADD INTERVIEW', to: '/add-interview', fallbackTo: '/add-interview' };
   }
   if (pathname.startsWith('/add-interview')) {
-    return { label: 'BACK TO TERMINAL', fallbackTo: '/' };
+    return { label: 'BACK TO TERMINAL', to: '/', fallbackTo: '/' };
   }
   if (pathname.startsWith('/interviews')) {
-    return { label: 'BACK TO TERMINAL', fallbackTo: '/' };
+    return { label: 'BACK TO TERMINAL', to: '/', fallbackTo: '/' };
   }
   if (pathname.startsWith('/summaries')) {
-    return { label: 'BACK TO TERMINAL', fallbackTo: '/' };
+    return { label: 'BACK TO TERMINAL', to: '/', fallbackTo: '/' };
   }
-  return { label: 'BACK', fallbackTo: '/' };
+  return { label: 'BACK', to: null, fallbackTo: '/' };
 }
 
 export default function AppFrame() {
   const location = useLocation();
   const showBack = location.pathname !== '/';
-  const { label, fallbackTo } = getBackConfig(location.pathname);
+  const { label, to, fallbackTo } = getBackConfig(location.pathname);
+
+  useEffect(() => {
+    // Default behavior: keep the crown white on all pages.
+    // Special states (e.g. analysis completion) can override this until the next route change.
+    setLedCrownWhite();
+  }, [location.pathname]);
 
   return (
     <>
-      {showBack && <BackButton label={label} fallbackTo={fallbackTo} />}
+      {showBack && <BackButton label={label} to={to} fallbackTo={fallbackTo} />}
       <Outlet />
     </>
   );

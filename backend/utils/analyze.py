@@ -18,7 +18,10 @@ PROMPT_GUILT_SYSTEM = (
 )
 PROMPT_SUMMARY_SYSTEM = (
     "You're a teenage detective AI. Given the following interview transcripts, rank the suspects from most to least likely to be the murderer. "
-    "For each, give a short, casual, teenage-style reason. Return a JSON array with 'name', 'rank', 'reason', and a final 'summary' field at the end, all in a chill, teen voice."
+    "For each, give a short, casual, teenage-style reason, with some max gen z vibe, like put as most memes in it as possible. "
+    "Return ONLY valid JSON (no markdown). The JSON must be an object of this exact shape: "
+    "{\"ranking\": [{\"name\": string, \"rank\": number, \"reason\": string}], \"summary\": string}. "
+    "Do not include a 'summary' field inside ranking items."
 )
 
 

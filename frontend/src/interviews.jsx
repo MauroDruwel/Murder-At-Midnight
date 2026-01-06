@@ -17,10 +17,27 @@ const ANIMATION_CONFIG = {
 };
 
 const toHandle = name => (name || 'interview').toLowerCase().replace(/\s+/g, '_');
+const normalizeGuiltLevel = level => {
+  if (level == null || level === -1) return null;
+
+  const numeric = typeof level === 'number' ? level : Number(level);
+  if (!Number.isFinite(numeric)) return null;
+
+  // Backend values may be returned as 0–1, 0–10, or 0–100. Normalize to 0–1.
+  let normalized = numeric;
+  if (normalized > 1) {
+    if (normalized <= 10) normalized /= 10;
+    else normalized = Math.min(normalized, 100) / 100;
+  }
+
+  return clamp(normalized, 0, 1);
+};
+
 const guiltToAccent = level => {
-  if (level == null || level === -1) return { bg: 'rgba(255, 255, 255, 0.1)', border: 'rgba(255, 255, 255, 0.12)' };
-  if (level <= 0.3) return { bg: 'rgba(46, 204, 113, 0.22)', border: 'rgba(46, 204, 113, 0.35)' };
-  if (level <= 0.6) return { bg: 'rgba(241, 196, 15, 0.24)', border: 'rgba(241, 196, 15, 0.4)' };
+  const normalized = normalizeGuiltLevel(level);
+  if (normalized == null) return { bg: 'rgba(255, 255, 255, 0.1)', border: 'rgba(255, 255, 255, 0.12)' };
+  if (normalized <= 0.3) return { bg: 'rgba(46, 204, 113, 0.22)', border: 'rgba(46, 204, 113, 0.35)' };
+  if (normalized <= 0.6) return { bg: 'rgba(241, 196, 15, 0.24)', border: 'rgba(241, 196, 15, 0.4)' };
   return { bg: 'rgba(231, 76, 60, 0.25)', border: 'rgba(231, 76, 60, 0.45)' };
 };
 
@@ -391,6 +408,7 @@ const ProfileCard = React.memo(ProfileCardComponent);
 export default function Interviews() {
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -400,8 +418,10 @@ export default function Interviews() {
         const res = await fetch(`${API_BASE}/interviews`);
         if (!res.ok) throw new Error('Failed to fetch interviews');
         const data = await res.json();
+        console.log('API response:', data);
         if (!cancelled) setInterviews(Array.isArray(data) ? data : []);
       } catch (err) {
+        if (!cancelled) setError(err.message || 'Failed to fetch interviews');
         if (!cancelled) setInterviews([]);
       } finally {
         if (!cancelled) setLoading(false);
@@ -431,12 +451,18 @@ export default function Interviews() {
           <p className="lede">Meet our featured detective.</p>
         </header>
 
+        {error && (
+          <div className="interviews-placeholder" style={{ color: 'red', marginBottom: '1em' }}>
+            Error: {error}
+          </div>
+        )}
+
         <div className="interviews-grid">
           {loading && <div className="interviews-placeholder">Loading interviews…</div>}
-          {!loading && interviews.length === 0 && (
+          {!loading && !error && interviews.length === 0 && (
             <div className="interviews-placeholder">No interviews yet.</div>
           )}
-          {!loading &&
+          {!loading && !error &&
             interviews.map((interview, idx) => (
               <ProfileCard
                 key={`${interview.name || 'interview'}-${idx}`}
