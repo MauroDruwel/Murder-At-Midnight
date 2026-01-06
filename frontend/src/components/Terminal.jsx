@@ -2,27 +2,28 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './terminal.css';
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
-
 const NAV_ITEMS = ['add interview', 'view interviews', 'interview summaries'];
 const NAV_ROUTES = ['/add-interview', '/interviews', '/summaries'];
+const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
 
 export default function Terminal() {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [history, setHistory] = useState([
     { type: 'system', text: 'murder-at-midnight // minimal shell' },
     { type: 'system', text: 'type "help" below or use arrow keys' },
     { type: 'system', text: '' }
   ]);
-  const [input, setInput] = useState('');
-  const [commandHistory, setCommandHistory] = useState([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [selectedNav, setSelectedNav] = useState(0);
   const [resetWorking, setResetWorking] = useState(false);
   const [resetStatus, setResetStatus] = useState('');
+
   const logRef = useRef(null);
-  const inputRef = useRef(null);
+
+  const arrowSoundRef = useRef(null);
+  const clickSoundRef = useRef(null);
+
+  const addToHistory = (entries) =>
+    setHistory((prev) => [...prev, ...entries]);
 
   useEffect(() => {
     if (logRef.current) {
@@ -30,51 +31,46 @@ export default function Terminal() {
     }
   }, [history]);
 
+  const playSound = (audioRef) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    audio
+      .play()
+      .catch((err) => {
+        console.log('Sound play failed:', err);
+      });
+  };
+
   const handleNavigation = (index) => {
     const route = NAV_ROUTES[index];
     addToHistory([{ type: 'info', text: `navigating to ${NAV_ITEMS[index]}...` }]);
-    window.location.href = route;
+    playSound(clickSoundRef);
+    setTimeout(() => navigate(route), 100);
   };
 
   useEffect(() => {
     const onKeyDown = (e) => {
-      if (document.activeElement === inputRef.current) return;
       if (e.key === 'ArrowDown') {
         e.preventDefault();
+        playSound(arrowSoundRef);
         setSelectedNav((prev) => (prev + 1) % NAV_ITEMS.length);
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
+        playSound(arrowSoundRef);
         setSelectedNav((prev) => (prev - 1 + NAV_ITEMS.length) % NAV_ITEMS.length);
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        handleNavigation(selectedNav);
+        setSelectedNav((prev) => {
+          handleNavigation(prev);
+          return prev;
+        });
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedNav]);
-
-  const addToHistory = (entries) => setHistory((prev) => [...prev, ...entries]);
-
-  const getLineColor = (type) => {
-    switch (type) {
-      case 'input':
-        return 'log-input';
-      case 'success':
-        return 'log-success';
-      case 'error':
-        return 'log-error';
-      case 'warning':
-        return 'log-warning';
-      case 'info':
-        return 'log-info';
-      case 'data':
-        return 'log-data';
-      default:
-        return 'log-muted';
-    }
-  };
+  }, []);
 
   const handleReset = async () => {
     if (resetWorking) return;
@@ -99,7 +95,12 @@ export default function Terminal() {
 
       <div className="panel">
         <div className="panel-actions">
-          <button className="ghost-btn" type="button" onClick={handleReset} disabled={resetWorking}>
+          <button
+            className="ghost-btn"
+            type="button"
+            onClick={handleReset}
+            disabled={resetWorking}
+          >
             Reset all
           </button>
           {resetStatus && <span className="ghost-note">{resetStatus}</span>}
@@ -118,7 +119,6 @@ export default function Terminal() {
             </button>
           ))}
         </div>
-
       </div>
 
       <div className="pill right-pill">
@@ -126,6 +126,17 @@ export default function Terminal() {
         <span className="arrow">▼</span>
         <span className="pill-text">try using arrow keys!</span>
       </div>
+
+      <audio
+        ref={arrowSoundRef}
+        src="/sounds/press.mp3"
+        preload="auto"
+      />
+      <audio
+        ref={clickSoundRef}
+        src="/sounds/click.mp3"
+        preload="auto"
+      />
     </div>
   );
 }
