@@ -44,3 +44,76 @@ a {
   background: rgba(34, 197, 94, 0.35);
   color: #e8ffe7;
 }
+
+.mam-back-btn {
+  position: fixed;
+  top: 22px;
+  left: 22px;
+  z-index: 9999;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 3px solid #fff3d6;
+  background: #2d2540;
+  color: #fff3d6;
+
+  font-family: inherit;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+
+  transform: rotate(-3deg);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.mam-back-btn:hover {
+  transform: rotate(-3deg) translate(-2px, -2px);
+  box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.5);
+  background: #3a2f52;
+}
+
+.mam-back-btn:active {
+  transform: rotate(-3deg) translate(0, 0);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45);
+}
+
+.mam-back-btn:focus-visible {
+  outline: 3px solid rgba(34, 197, 94, 0.8);
+  outline-offset: 3px;
+}
+
+.mam-back-btn__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  border: 3px solid #fff3d6;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.mam-back-btn__label {
+  font-size: 13px;
+  line-height: 1;
+}
+
+@media (max-width: 520px) {
+  .mam-back-btn {
+    top: 14px;
+    left: 14px;
+    padding: 9px 10px;
+    gap: 8px;
+  }
+  .mam-back-btn__label {
+    font-size: 12px;
+  }
+}
