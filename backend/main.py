@@ -21,6 +21,10 @@ app.add_middleware(
 @app.get("/interviews")
 def get_interviews():
     interviews = load_interviews()
+    # interviews.json may contain non-interview entries (e.g. cached summary objects)
+    # Keep the API contract stable by returning only actual interviews.
+    if isinstance(interviews, list):
+        return [iv for iv in interviews if isinstance(iv, dict) and iv.get("name")]
     return interviews
 
 # DELETE endpoint to remove an interview and its audio file
