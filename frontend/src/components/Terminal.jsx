@@ -92,14 +92,6 @@ export default function Terminal() {
           ))}
         </div>
 
-        <div className="mini-log" ref={logRef}>
-          {history.slice(-10).map((line, idx) => (
-            <div key={`${line.text}-${idx}`} className={`log-line ${getLineColor(line.type)}`}>
-              {line.text}
-            </div>
-          ))}
-          {isProcessing && <div className="log-line log-info">processing…</div>}
-        </div>
       </div>
 
       <div className="pill right-pill">
