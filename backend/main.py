@@ -133,8 +133,12 @@ async def summary_endpoint():
     # Store summary at the top-level of interviews.json as '_summary' (not in the list)
     if isinstance(interviews, dict) and "_summary" in interviews:
         summary_data = interviews["_summary"]
-    elif isinstance(interviews, list) and len(interviews) > 0 and isinstance(interviews[-1], dict) and "_summary" in interviews[-1]:
-        summary_data = interviews[-1]["_summary"]
+    elif isinstance(interviews, list):
+        # Find any existing _summary in the list, regardless of position
+        for iv in reversed(interviews):
+            if isinstance(iv, dict) and "_summary" in iv:
+                summary_data = iv["_summary"]
+                break
 
     # Compute a hash of all transcripts to detect changes
     import hashlib, json as _json
@@ -157,9 +161,8 @@ async def summary_endpoint():
             interviews["_summary"] = {"hash": transcripts_hash, "result": summary_result}
             save_interviews(interviews)
         elif isinstance(interviews, list):
-            # Remove old _summary if present
-            if len(interviews) > 0 and isinstance(interviews[-1], dict) and "_summary" in interviews[-1]:
-                interviews.pop()
+            # Remove any existing _summary entries so only one exists
+            interviews = [iv for iv in interviews if not (isinstance(iv, dict) and "_summary" in iv)]
             interviews.append({"_summary": {"hash": transcripts_hash, "result": summary_result}})
             save_interviews(interviews)
         return {"summary": summary_result}
