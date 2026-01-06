@@ -105,8 +105,27 @@ export default function AddInterview() {
       if (!res.ok || data.error) {
         throw new Error(data.error || 'Failed to save interview');
       }
-      setStatus('saved');
       setTranscript(data.transcript || '');
+
+      // Immediately trigger guilt analysis in the background
+      setStatus('analyzing...');
+      try {
+        const analyzeForm = new FormData();
+        analyzeForm.append('name', name.trim());
+        const analyzeRes = await fetch(`${API_BASE}/analyze`, {
+          method: 'POST',
+          body: analyzeForm,
+        });
+        const analyzeData = await analyzeRes.json();
+        if (!analyzeRes.ok || analyzeData.error) {
+          throw new Error(analyzeData.error || 'Analysis failed');
+        }
+        setStatus('saved & analyzed');
+      } catch (anErr) {
+        // Keep the save success but surface analysis issue
+        setStatus('saved (analysis failed)');
+        setError(anErr.message || 'Analysis failed');
+      }
     } catch (err) {
       setError(err.message || 'Failed to save interview');
       setStatus('ready');

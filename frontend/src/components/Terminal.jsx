@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './terminal.css';
 
+const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
+
 const NAV_ITEMS = ['add interview', 'view interviews', 'interview summaries'];
 const NAV_ROUTES = ['/add-interview', '/interviews', '/summaries'];
 
@@ -17,6 +19,8 @@ export default function Terminal() {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedNav, setSelectedNav] = useState(0);
+  const [resetWorking, setResetWorking] = useState(false);
+  const [resetStatus, setResetStatus] = useState('');
   const logRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -72,11 +76,34 @@ export default function Terminal() {
     }
   };
 
+  const handleReset = async () => {
+    if (resetWorking) return;
+    const proceed = window.confirm('Reset all interviews? This cannot be undone.');
+    if (!proceed) return;
+    setResetWorking(true);
+    setResetStatus('');
+    try {
+      const res = await fetch(`${API_BASE}/interviews/reset`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Reset failed');
+      setResetStatus('All interviews cleared');
+    } catch (err) {
+      setResetStatus(err.message || 'Reset failed');
+    } finally {
+      setResetWorking(false);
+    }
+  };
+
   return (
     <div className="terminal-page">
       <div className="noise-layer" aria-hidden="true"></div>
 
       <div className="panel">
+        <div className="panel-actions">
+          <button className="ghost-btn" type="button" onClick={handleReset} disabled={resetWorking}>
+            Reset all
+          </button>
+          {resetStatus && <span className="ghost-note">{resetStatus}</span>}
+        </div>
         <p className="title">murder-at-midnight terminal</p>
 
         <div className="nav-list">

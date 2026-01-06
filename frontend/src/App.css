@@ -163,3 +163,137 @@
   transform: translateY(-1px);
   box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
 }
+
+.pill-link:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.pill-link.danger {
+  background: #ff6b6b;
+  color: #1f1b2d;
+  border: 2px solid #1f1b2d;
+}
+
+.summary-panel {
+  width: min(1020px, 94vw);
+  gap: 22px;
+}
+
+.summary-head {
+  display: grid;
+  gap: 8px;
+  text-align: center;
+}
+
+.summary-head h1 {
+  margin: 0;
+}
+
+.summary-head .lede {
+  margin: 0;
+  color: #ffe4b5;
+}
+
+.summary-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.summary-refresh {
+  border: 2px solid #ffe4b5;
+  background: #2d2540;
+  color: #ffe4b5;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.summary-refresh:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.summary-refresh:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.summary-content {
+  display: grid;
+  gap: 16px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.summary-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: #1f1b2d;
+  border: 2px solid #ffe4b5;
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: #fff3d6;
+  box-shadow: inset 0 0 0 1px rgba(255, 228, 181, 0.08);
+}
+
+.summary-rank {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #ff6b6b;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: #ff6b6b;
+  background: #2d2540;
+  flex-shrink: 0;
+}
+
+.summary-body {
+  display: grid;
+  gap: 6px;
+}
+
+.summary-name {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.summary-reason {
+  margin: 0;
+  color: #ffe4b5;
+  line-height: 1.5;
+}
+
+.summary-overview {
+  background: #1f1b2d;
+  border: 2px solid #ffe4b5;
+  border-radius: 16px;
+  padding: 16px 18px;
+  color: #fff3d6;
+  box-shadow: inset 0 0 0 1px rgba(255, 228, 181, 0.08);
+}
+
+.summary-overview h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fdc576;
+}
+
+.summary-overview p {
+  margin: 0;
+  line-height: 1.6;
+}

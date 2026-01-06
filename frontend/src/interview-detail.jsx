@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import './components/terminal.css';
 import './App.css';
 
@@ -16,6 +16,9 @@ export default function InterviewDetail() {
   const [interview, setInterview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [actionMessage, setActionMessage] = useState('');
+  const [working, setWorking] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +47,24 @@ export default function InterviewDetail() {
 
   const transcript = useMemo(() => interview?.transcript || 'No transcript available yet.', [interview]);
 
+  const handleDelete = async () => {
+    if (!interview?.name) return;
+    const proceed = window.confirm('Delete this interview?');
+    if (!proceed) return;
+    setWorking(true);
+    setActionMessage('');
+    try {
+      const res = await fetch(`${API_BASE}/interview/${encodeURIComponent(interview.name)}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete interview');
+      setActionMessage('Interview deleted.');
+      setTimeout(() => navigate('/interviews'), 400);
+    } catch (err) {
+      setError(err.message || 'Failed to delete interview');
+    } finally {
+      setWorking(false);
+    }
+  };
+
   return (
     <div className="terminal-page">
       <div className="noise-layer" aria-hidden="true" />
@@ -63,10 +84,14 @@ export default function InterviewDetail() {
               <p className="transcript-text">{transcript}</p>
             </article>
           )}
+          {actionMessage && <div className="interviews-placeholder">{actionMessage}</div>}
         </div>
 
         <div className="detail-actions">
           <Link className="pill-link" to="/interviews">← Back to interviews</Link>
+          <button className="pill-link danger" type="button" onClick={handleDelete} disabled={working || !interview}>
+            Delete interview
+          </button>
         </div>
       </div>
     </div>
