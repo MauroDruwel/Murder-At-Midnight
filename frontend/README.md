@@ -1,16 +1,51 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Murder At Midnight Frontend
 
-Currently, two official plugins are available:
+This is the frontend for the Murder At Midnight project, built with React and Vite.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+- Pixel art font styling using 'Press Start 2P'
+- Tailwind CSS for utility-first styling
+- React Router for navigation
+- Sound effects support (add your own .wav files to `public/sounds/`)
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
+- Node.js (v18 or newer recommended)
+- npm
 
-## Expanding the ESLint configuration
+### Install dependencies
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+npm install
+```
+
+### Run the development server
+
+```
+npm run dev
+```
+
+### Build for production
+
+```
+npm run build
+```
+
+## Tailwind CSS Setup
+- Tailwind is configured via `tailwind.config.js` and `postcss.config.js`.
+- If you see errors about `@tailwind` rules, ensure you have `tailwindcss`, `postcss`, and `autoprefixer` installed.
+
+## Customization
+- To change the font, edit `src/index.css` and use a different Google Fonts import.
+- To add sound effects, place `.wav` or `.mp3` files in `public/sounds/` and use the `playSound` utility in your components.
+
+## Project Structure
+- `src/` — React components and pages
+- `public/` — Static assets
+- `tailwind.config.js` — Tailwind configuration
+- `postcss.config.js` — PostCSS configuration
+
+## License
+See LICENSE in the root directory.
