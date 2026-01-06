@@ -19,7 +19,6 @@ root.render(
           <Route index element={<Terminal />} />
           <Route path="add-interview" element={<AddInterviewLanding />} />
           <Route path="add-interview/new" element={<AddInterview />} />
-          <Route path="interviews" element={<Interviews />} />
           <Route path="interviews/:handle" element={<InterviewDetail />} />
           <Route path="summaries" element={<Summaries />} />
         </Route>

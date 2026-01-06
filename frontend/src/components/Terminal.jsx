@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { playSound } from '../lib/sound';
 import './terminal.css';
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8000';
@@ -31,6 +32,7 @@ export default function Terminal() {
   }, [history]);
 
   const handleNavigation = (index) => {
+    playSound('/sounds/click.wav');
     const route = NAV_ROUTES[index];
     addToHistory([{ type: 'info', text: `navigating to ${NAV_ITEMS[index]}...` }]);
     window.location.href = route;
@@ -78,6 +80,7 @@ export default function Terminal() {
 
   const handleReset = async () => {
     if (resetWorking) return;
+    playSound('/sounds/click.wav');
     const proceed = window.confirm('Reset all interviews? This cannot be undone.');
     if (!proceed) return;
     setResetWorking(true);
